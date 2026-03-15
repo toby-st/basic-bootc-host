@@ -1,3 +1,3 @@
 docker:
-  ghcr.io/toby-st/basic-bootc-host:
+  ghcr.io/toby-st:
     use-sigstore-attachments: true
