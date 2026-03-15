@@ -16,6 +16,9 @@ ADD config/registries.d.yaml    /etc/containers/registries.d/ghcr.io-toby-st.yam
 RUN mkdir -p /usr/share/keys
 ADD config/2025.11.pub          /usr/share/keys/2025.11.pub
 
+# Add sshd config
+ADD config/sshd_config /etc/ssh/sshd_config
+
 # Enable cloud console
 ADD config/05-cloud-kargs.toml /usr/lib/bootc/install/05-cloud-kargs.toml
 
@@ -32,7 +35,7 @@ RUN systemd-sysusers && \
 RUN systemctl --global enable podman-auto-update.timer
 
 # Initial firewall setup
-RUN firewall-offline-cmd --add-interface=tailscale0 --zone=internal
+RUN firewall-offline-cmd --add-interface=tailscale0 --zone=internal && firewall-offline-cmd --remove-service=cockpit --zone=public
 
 # Enable basic services
 RUN systemctl enable tailscaled qemu-guest-agent firewalld
