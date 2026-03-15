@@ -24,6 +24,8 @@ ADD config/container-user.conf  /usr/lib/sysusers.d/container-user.conf
 RUN systemd-sysusers && \
     install -d -m 0750 /var/home/container/.config/containers/systemd && \
     chown -R 1000:1000 /var/home/container && \
+    echo 'container:100000:65536' >> /etc/subuid && \
+    echo 'container:100000:65536' >> /etc/subgid && \
     mkdir -p /var/lib/systemd/linger && touch /var/lib/systemd/linger/container
 
 # Enable automatic podman container updates
