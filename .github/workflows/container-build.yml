@@ -37,7 +37,7 @@ jobs:
       # Login against the container registry except on PR
       - name: Log into registry ${{ env.REGISTRY }}
         if: github.event_name != 'pull_request'
-        uses: redhat-actions/registry-login@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
