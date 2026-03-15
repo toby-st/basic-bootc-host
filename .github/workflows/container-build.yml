@@ -47,6 +47,8 @@ jobs:
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.KEY_2025_11_B64 }}
         run: |
+          mkdir -p ~/.config/containers/registries.d
+          cp config/registries.d.yaml ~/.config/containers/registries.d/ghcr.io-toby-st.yaml
           echo "${COSIGN_PRIVATE_KEY}" | base64 -d > /tmp/cosign.key
           for TAG in latest ${{ github.sha }}; do
             podman push \
