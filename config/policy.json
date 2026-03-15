@@ -9,7 +9,7 @@
             "ghcr.io/toby-st/basic-bootc-host": [
                 {
                     "type": "sigstoreSigned",
-                    "keyPaths": ["/usr/local/etc/2025.11.pub"],
+                    "keyPaths": ["/usr/share/keys/2025.11.pub"],
                     "signedIdentity": {
                         "type": "matchRepository"
                     }

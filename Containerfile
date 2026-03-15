@@ -14,7 +14,7 @@ RUN dnf -y install firewalld tailscale qemu-guest-agent && \
 ADD config/policy.json          /etc/containers/policy.json
 ADD config/registries.d.yaml    /etc/containers/registries.d/ghcr.io-toby-st.yaml
 RUN mkdir -p /usr/share/keys
-ADD config/2025.11.pub /etc/containers/2025.11.pub
+ADD config/2025.11.pub          /usr/share/keys/2025.11.pub
 
 # Create generic rootless user for running containers
 ADD config/container-user.conf  /usr/lib/sysusers.d/container-user.conf
