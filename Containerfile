@@ -16,11 +16,13 @@ ADD config/registries.d.yaml    /etc/containers/registries.d/ghcr.io-toby-st.yam
 RUN mkdir -p /usr/share/keys
 ADD config/2025.11.pub          /usr/share/keys/2025.11.pub
 
+# Enable cloud console
+ADD config/05-cloud-kargs.toml /usr/lib/bootc/install/05-cloud-kargs.toml
+
 # Create generic rootless user for running containers
 ADD config/container-user.conf  /usr/lib/sysusers.d/container-user.conf
 ADD config/container-home.conf  /usr/lib/tmpfiles.d/container-home.conf
 RUN mkdir -p /var/lib/systemd/linger && touch /var/lib/systemd/linger/container
-
 
 # Enable automatic podman container updates
 RUN systemctl --global enable podman-auto-update.timer
