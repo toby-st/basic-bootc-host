@@ -9,12 +9,7 @@
             "ghcr.io/toby-st/basic-bootc-host": [
                 {
                     "type": "sigstoreSigned",
-                    "fulcio": {
-                        "caPath": "/etc/containers/fulcio_v1.crt.pem",
-                        "oidcIssuer": "https://token.actions.githubusercontent.com",
-                        "subjectEmail": "https://github.com/toby-st/basic-bootc-host/.github/workflows/container-build.yml@refs/heads/main"
-                    },
-                    "rekorPublicKeyPath": "/etc/containers/rekor.pub",
+                    "keyPaths": ["/usr/local/etc/2025.11.pub"],
                     "signedIdentity": {
                         "type": "matchRepository"
                     }
