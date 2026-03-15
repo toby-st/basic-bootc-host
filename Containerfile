@@ -10,6 +10,11 @@ RUN dnf config-manager --add-repo https://pkgs.tailscale.com/stable/centos/${CEN
 RUN dnf -y install firewalld tailscale qemu-guest-agent && \
     dnf clean all
 
+# Container image signature policy and Sigstore community trust roots
+ADD config/policy.json          /etc/containers/policy.json
+ADD config/fulcio_v1.crt.pem    /etc/containers/fulcio_v1.crt.pem
+ADD config/rekor.pub            /etc/containers/rekor.pub
+
 # Create generic rootless user for running containers
 ADD config/container-user.conf  /usr/lib/sysusers.d/container-user.conf
 ADD config/container-home.conf  /usr/lib/tmpfiles.d/container-home.conf

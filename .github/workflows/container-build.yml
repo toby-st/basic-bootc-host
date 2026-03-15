@@ -1,0 +1,86 @@
+name: Build and push container image
+
+on:
+  schedule:
+    - cron: '25 19 * * 0'
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: toby-st/basic-bootc-host
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install the cosign tool except on PR
+      # https://github.com/sigstore/cosign-installer
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3.5.0
+
+      # Login against the container registry except on PR
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/registry-login@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Download Sigstore community trust roots (Fulcio CA + Rekor public key)
+      # Source: https://github.com/sigstore/sigstore/tree/main/pkg/tuf/repository/targets
+      - name: Fetch Sigstore trust roots
+        run: |
+          curl -fsSL -o config/fulcio_v1.crt.pem \
+            https://raw.githubusercontent.com/sigstore/sigstore/main/pkg/tuf/repository/targets/fulcio_v1.crt.pem
+          curl -fsSL -o config/rekor.pub \
+            https://raw.githubusercontent.com/sigstore/sigstore/main/pkg/tuf/repository/targets/rekor.pub
+
+      # Build the image with buildah
+      # https://github.com/redhat-actions/buildah-build
+      - name: Build container image with buildah
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          containerfiles: ./Containerfile
+          oci: true
+
+      # Push to registry except on PR
+      - name: Push container image
+        id: push-image
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      # Sign the resulting container image digest except on PRs.
+      # This will only write to the public Rekor transparency log when the
+      # repository is public. Pass --force to cosign to publish for private images.
+      # https://github.com/sigstore/cosign
+      - name: Sign the published container image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          DIGEST: ${{ steps.push-image.outputs.digest }}
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${DIGEST}

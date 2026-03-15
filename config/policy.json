@@ -1,0 +1,25 @@
+{
+    "default": [
+        {
+            "type": "insecureAcceptAnything"
+        }
+    ],
+    "transports": {
+        "docker": {
+            "ghcr.io/toby-st/basic-bootc-host": [
+                {
+                    "type": "sigstoreSigned",
+                    "fulcio": {
+                        "caPath": "/etc/containers/fulcio_v1.crt.pem",
+                        "oidcIssuer": "https://token.actions.githubusercontent.com",
+                        "subjectRegExp": "https://github.com/toby-st/basic-bootc-host/.github/workflows/container-build.yml@refs/heads/.*"
+                    },
+                    "rekorPublicKeyPath": "/etc/containers/rekor.pub",
+                    "signedIdentity": {
+                        "type": "matchRepository"
+                    }
+                }
+            ]
+        }
+    }
+}
