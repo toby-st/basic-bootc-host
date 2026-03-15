@@ -21,8 +21,10 @@ ADD config/05-cloud-kargs.toml /usr/lib/bootc/install/05-cloud-kargs.toml
 
 # Create generic rootless user for running containers
 ADD config/container-user.conf  /usr/lib/sysusers.d/container-user.conf
-ADD config/container-home.conf  /usr/lib/tmpfiles.d/container-home.conf
-RUN mkdir -p /var/lib/systemd/linger && touch /var/lib/systemd/linger/container
+RUN systemd-sysusers && \
+    install -d -m 0750 /var/home/container/.config/containers/systemd && \
+    chown -R 1000:1000 /var/home/container && \
+    mkdir -p /var/lib/systemd/linger && touch /var/lib/systemd/linger/container
 
 # Enable automatic podman container updates
 RUN systemctl --global enable podman-auto-update.timer
