@@ -35,7 +35,7 @@ RUN systemd-sysusers && \
 RUN systemctl --global enable podman-auto-update.timer
 
 # Initial firewall setup
-RUN firewall-offline-cmd --add-interface=tailscale0 --zone=internal && firewall-offline-cmd --remove-service=cockpit --zone=public
+RUN firewall-offline-cmd --add-interface=tailscale0 --zone=internal && firewall-offline-cmd --remove-service-from-zone=cockpit--zone=public
 
 # Enable basic services
 RUN systemctl enable tailscaled qemu-guest-agent firewalld
