@@ -45,5 +45,5 @@ jobs:
         with:
           tag_name: ${{ steps.release-tag.outputs.tag }}
           name: ${{ steps.release-tag.outputs.tag }}
-          files: ${{ steps.build-qcow2.outputs.output-directory }}/*
+          files: ${{ steps.build-qcow2.outputs.qcow2-output-path }}
           make_latest: true
