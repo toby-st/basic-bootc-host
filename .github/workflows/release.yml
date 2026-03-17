@@ -29,6 +29,7 @@ jobs:
         id: build-qcow2
         uses: osbuild/bootc-image-builder-action@v0.0.2
         with:
+          config-file: ./config/qcow2-config.toml
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           types: |
             qcow2
