@@ -1,0 +1,49 @@
+name: Build qcow2 and Release
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: toby-st/basic-bootc-host
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log into registry
+        run: podman login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build qcow2 image
+        id: build-qcow2
+        uses: osbuild/bootc-image-builder-action@v0.0.2
+        with:
+          config-file: ./config/qcow2-config.toml
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          types: |
+            qcow2
+
+      - name: Get release tag
+        if: github.event_name != 'pull_request'
+        id: release-tag
+        run: echo "tag=$(date +'%m.%Y')" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release-tag.outputs.tag }}
+          name: ${{ steps.release-tag.outputs.tag }}
+          files: ${{ steps.build-qcow2.outputs.output-directory }}/*
+          make_latest: true
