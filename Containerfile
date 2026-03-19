@@ -7,7 +7,7 @@ ARG CENTOS_VERSION
 RUN dnf config-manager --add-repo https://pkgs.tailscale.com/stable/centos/${CENTOS_VERSION}/tailscale.repo
 
 # Install basic needed packages
-RUN dnf -y install firewalld tailscale qemu-guest-agent && \
+RUN dnf -y install firewalld tailscale qemu-guest-agent cloud-init && \
     dnf clean all
 
 # Container image signature policy and signing public key
@@ -38,4 +38,4 @@ RUN systemctl --global enable podman-auto-update.timer
 RUN firewall-offline-cmd --add-interface=tailscale0 --zone=internal && firewall-offline-cmd --remove-service-from-zone=cockpit--zone=public
 
 # Enable basic services
-RUN systemctl enable tailscaled qemu-guest-agent firewalld
+RUN systemctl enable tailscaled qemu-guest-agent firewalld cloud-init
